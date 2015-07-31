@@ -1,0 +1,11 @@
+---
+galaxy_info:
+  author: Nicolas Goy
+  description:
+  company: Goyman SA
+  license: MIT
+  min_ansible_version: 1.6
+  platforms:
+  - name: EL
+    versions:
+    - 7

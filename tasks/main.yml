@@ -1,0 +1,53 @@
+---
+- name: Install compiler and required packages
+  yum: name={{ item }}
+  with_items:
+  - make
+  - gcc
+  - git
+  - tar
+  - bzip2
+  - patch
+  - gcc-c++
+  - lzop
+  - postgresql-devel
+  - openssl-devel
+  - readline-devel
+  - readline-static
+  - readline
+
+
+- name: Checkout rbenv
+  command: git clone https://github.com/sstephenson/rbenv.git {{ ruby_install_path }}/rbenv
+  args:
+    creates: '{{ ruby_install_path }}/rbenv/bin/rbenv'
+
+- name: Checkout ruby-build
+  command: git clone https://github.com/sstephenson/ruby-build.git {{ ruby_install_path }}/rbenv/plugins/ruby-build
+  args:
+    creates: '{{ ruby_install_path }}/rbenv/plugins/ruby-build'
+
+- name: Install ruby
+  command: '{{ ruby_install_path }}/rbenv/bin/rbenv install {{ruby_version}}'
+  args:
+    creates: '{{ ruby_install_path }}/rbenv/versions/{{ ruby_version }}'
+  environment:
+    RBENV_ROOT: "{{ ruby_install_path }}/rbenv"
+    RBENV_VERSION: "{{ ruby_version }}"
+
+- name: Set default ruby
+  command: '{{ ruby_install_path }}/rbenv/bin/rbenv global {{ruby_version}}'
+  environment:
+    RBENV_ROOT: "{{ ruby_install_path }}/rbenv"
+    RBENV_VERSION: "{{ ruby_version }}"
+
+- name: Install base gems
+  command: '{{ ruby_install_path }}/rbenv/shims/gem install {{ item }} -N --no-user-install'
+  with_items:
+  - bundler
+
+- name: Rehash gems
+  command: '{{ ruby_install_path }}/rbenv/bin/rbenv rehash'
+  environment:
+    RBENV_ROOT: "{{ ruby_install_path }}/rbenv"
+    RBENV_VERSION: "{{ ruby_version }}"
