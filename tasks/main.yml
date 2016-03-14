@@ -1,53 +1,59 @@
 ---
 - name: Install compiler and required packages
-  yum: name={{ item }}
+  become: yes
+  become_user: root
+  yum: name={{ item }} state=latest
   with_items:
   - make
   - gcc
-  - git
+  - gcc-c++
   - tar
   - bzip2
   - patch
-  - gcc-c++
-  - lzop
-  - postgresql-devel
   - openssl-devel
   - readline-devel
-  - readline-static
-  - readline
+  - libffi-devel
+  - libyaml-devel
+  - zlib-devel
+  - gdbm-devel
+  - ncurses-devel
 
+- name: Creates ruby-build directory
+  become: "{{ use_unprivileged_user }}"
+  become_user: "{{ unprivileged_user_name }}"
+  file: path=~/ruby-build state=directory force=yes
 
-- name: Checkout rbenv
-  command: git clone https://github.com/sstephenson/rbenv.git {{ ruby_install_path }}/rbenv
+- name: Downloads ruby-build
+  become: "{{ use_unprivileged_user }}"
+  become_user: "{{ unprivileged_user_name }}"
+  shell: "curl -Lk {{ rbenv_targz_url }} | tar xz --strip-components 1 --directory ~/ruby-build"
   args:
-    creates: '{{ ruby_install_path }}/rbenv/bin/rbenv'
+    creates: ~/ruby-build/bin/ruby-build
+    warn: no
 
-- name: Checkout ruby-build
-  command: git clone https://github.com/sstephenson/ruby-build.git {{ ruby_install_path }}/rbenv/plugins/ruby-build
+- name: Compiles Ruby
+  become: "{{ use_unprivileged_user }}"
+  become_user: "{{ unprivileged_user_name }}"
+  shell: "~/ruby-build/bin/ruby-build --verbose {{ ruby_version }} {{ ruby_install_path }}"
   args:
-    creates: '{{ ruby_install_path }}/rbenv/plugins/ruby-build'
+    creates: "{{ ruby_install_path }}/bin/ruby"
 
-- name: Install ruby
-  command: '{{ ruby_install_path }}/rbenv/bin/rbenv install {{ruby_version}}'
-  args:
-    creates: '{{ ruby_install_path }}/rbenv/versions/{{ ruby_version }}'
-  environment:
-    RBENV_ROOT: "{{ ruby_install_path }}/rbenv"
-    RBENV_VERSION: "{{ ruby_version }}"
+- name: Adds ruby bin dir to $PATH env var
+  become: "{{ use_unprivileged_user }}"
+  become_user: "{{ unprivileged_user_name }}"
+  lineinfile: dest=~/.bashrc line="export PATH={{ ruby_install_path }}/bin:$PATH"
 
-- name: Set default ruby
-  command: '{{ ruby_install_path }}/rbenv/bin/rbenv global {{ruby_version}}'
-  environment:
-    RBENV_ROOT: "{{ ruby_install_path }}/rbenv"
-    RBENV_VERSION: "{{ ruby_version }}"
+- name: Disable Gem docs installation by default
+  become: "{{ use_unprivileged_user }}"
+  become_user: "{{ unprivileged_user_name }}"
+  lineinfile: "dest=~/.gemrc create=yes line='gem: --no-document'"
 
-- name: Install base gems
-  command: '{{ ruby_install_path }}/rbenv/shims/gem install {{ item }} -N --no-user-install'
-  with_items:
-  - bundler
+- name: Update RubyGems
+  become: "{{ use_unprivileged_user }}"
+  become_user: "{{ unprivileged_user_name }}"
+  shell: "{{ ruby_install_path }}/bin/gem update --system"
 
-- name: Rehash gems
-  command: '{{ ruby_install_path }}/rbenv/bin/rbenv rehash'
-  environment:
-    RBENV_ROOT: "{{ ruby_install_path }}/rbenv"
-    RBENV_VERSION: "{{ ruby_version }}"
+- name: Install bundler
+  become: "{{ use_unprivileged_user }}"
+  become_user: "{{ unprivileged_user_name }}"
+  shell: "{{ ruby_install_path }}/bin/gem install bundler"
