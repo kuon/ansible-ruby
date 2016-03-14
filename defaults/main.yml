@@ -1,3 +1,6 @@
 ---
-ruby_install_path: /srv
-ruby_version: 2.2.2
+rbenv_targz_url: https://github.com/rbenv/ruby-build/archive/v20160228.tar.gz
+ruby_version: 2.2.4
+ruby_install_path: ~/.rubies/ruby-{{ ruby_version }}
+use_unprivileged_user: yes
+unprivileged_user_name: deploy
