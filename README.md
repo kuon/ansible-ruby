@@ -1,3 +1,36 @@
+
+# THIS REPOSITORY HAS MOVED
+
+New URL: https://git.goyman.com/kuon/ansible-ruby
+
+Why I moved everything out of GitHub:
+
+https://github.com/kuon/WhyILeftGithub/blob/main/README.md
+
+----
+
+
+# THIS REPOSITORY HAS MOVED
+
+New URL: https://git.goyman.com/kuon/ansible-ruby
+
+Why I moved everything out of GitHub:
+
+https://github.com/kuon/WhyILeftGithub/blob/main/README.md
+
+----
+
+
+# THIS REPOSITORY HAS MOVED
+
+New URL: https://git.goyman.com/kuon/ansible-ruby
+
+Why I moved everything out of GitHub:
+
+https://github.com/kuon/WhyILeftGithub/blob/main/README.md
+
+----
+
 # Ruby
 
 Compiles and install ruby using [ruby-build](https://github.com/rbenv/ruby-build)
